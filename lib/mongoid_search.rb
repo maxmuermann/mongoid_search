@@ -30,7 +30,15 @@ module Mongoid::Search
   mattr_accessor :replacements
   
   ## Synonyms
-  mattr_accessor :synonyms
+  mattr_reader :synonyms
+  
+  def self.synonyms=(synonyms)
+    # construct hash out of synonym arrays
+    @@synonyms = {}
+    synonyms.each do |syn|
+      syn.each {|s| @@synonyms[s] = syn}
+    end
+  end
 
   ## Words to ignore
   mattr_accessor :ignore_list

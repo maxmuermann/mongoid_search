@@ -58,7 +58,7 @@ module Mongoid::Search::Util
     text = text.reject { |word| ignore_list.include?(word) } unless ignore_list.blank?
     text = text.map(&stem_proc) if stem_keywords
     
-    text = text.map {|word| [word].push(synonyms[word]) || [word] } if synonyms
+    text = text.map {|word| synonyms[word] || [word] } .flatten if synonyms
     
     text
   end
