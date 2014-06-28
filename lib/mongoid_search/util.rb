@@ -34,6 +34,8 @@ module Mongoid::Search::Util
     ignore_list   = Mongoid::Search.ignore_list
     stem_keywords = Mongoid::Search.stem_keywords
     stem_proc     = Mongoid::Search.stem_proc
+    replacements  = Mongoid::Search.replacements || []
+    synonyms      = Mongoid::Search.synonyms || []
 
     return [] if text.blank?
     text = text.to_s.
@@ -43,11 +45,21 @@ module Mongoid::Search::Util
       to_s.
       gsub(/[._:;'"`,?|+={}()!@#%^&*<>~\$\-\\\/\[\]]/, ' '). # strip punctuation
       gsub(/[^\s\p{Alnum}]/,'').   # strip accents
-      gsub(/[#{ligatures.keys.join("")}]/) {|c| ligatures[c]}.
-      split(' ').
+      gsub(/[#{ligatures.keys.join("")}]/) {|c| ligatures[c]}
+      
+    if replacements
+      replacements.each do |repl|
+        text = text.gsub(repl.first, repl.last)
+      end
+    end
+      
+    text = text.split(' ').
       reject { |word| word.size < Mongoid::Search.minimum_word_size }
     text = text.reject { |word| ignore_list.include?(word) } unless ignore_list.blank?
     text = text.map(&stem_proc) if stem_keywords
+    
+    text = text.map {|word| synonyms[word] || word } if synonyms
+    
     text
   end
 

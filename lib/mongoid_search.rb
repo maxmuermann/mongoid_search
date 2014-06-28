@@ -25,6 +25,12 @@ module Mongoid::Search
   ## Stem procedure
   mattr_accessor :stem_proc
   @@stem_proc = Proc.new { |word| word.stem }
+  
+  ## Replacements
+  mattr_accessor :replacements
+  
+  ## Synonyms
+  mattr_accessor :synonyms
 
   ## Words to ignore
   mattr_accessor :ignore_list
