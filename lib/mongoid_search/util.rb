@@ -37,6 +37,9 @@ module Mongoid::Search::Util
     replacements  = Mongoid::Search.replacements || []
     synonyms      = Mongoid::Search.synonyms || []
 
+    p "------------------------"
+    p text
+
     return [] if text.blank?
     text = text.to_s.
       mb_chars.
@@ -44,22 +47,41 @@ module Mongoid::Search::Util
       downcase.
       to_s.
       gsub(/[._:;'"`,?|+={}()!@#%^&*<>~\$\\\/\[\]]/, ' '). # strip punctuation
-      gsub(/[^\s\p{Alnum}]/,'').   # strip accents
+      gsub(/àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ/,'').   # strip accents
       gsub(/[#{ligatures.keys.join("")}]/) {|c| ligatures[c]}
+      
+    p text
       
     if replacements
       replacements.each do |repl|
         text = text.gsub(repl.first, repl.last)
       end
     end
+    
+    p text
       
     text = text.split(' ').
       reject { |word| word.size < Mongoid::Search.minimum_word_size }
+      .reject {|w| w=='-'}
+      
+    p text  
+      
     text = text.reject { |word| ignore_list.include?(word) } unless ignore_list.blank?
+    
+    p text
+    
     text = text.map(&stem_proc) if stem_keywords
     
+    
+    p text
+    
     text = text.map {|word| synonyms[word] || [word] } .flatten if synonyms
-    text = text.map {|word| word.include?('-') ? [word.gsub('-',' '), word.gsub('-', '')] : [word] } .flatten # create separated and contracted version of words if dashes are present
+    
+    p text
+    
+    text = text.map {|word| p word;word.include?('-') ? [word.gsub('-',' '), word.gsub('-', '')] : [word] } .flatten # create separated and contracted version of words if dashes are present
+    
+    p text
     
     text
   end
