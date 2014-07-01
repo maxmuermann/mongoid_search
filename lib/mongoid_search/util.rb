@@ -44,7 +44,6 @@ module Mongoid::Search::Util
       downcase.
       to_s.
       gsub(/[._:;'"`,?|+={}()!@#%^&*<>~\$\\\/\[\]]/, ' '). # strip punctuation
-      gsub('-',''). # dashes will be contracted, not replaced by spaces
       gsub(/[^\s\p{Alnum}]/,'').   # strip accents
       gsub(/[#{ligatures.keys.join("")}]/) {|c| ligatures[c]}
       
@@ -60,6 +59,7 @@ module Mongoid::Search::Util
     text = text.map(&stem_proc) if stem_keywords
     
     text = text.map {|word| synonyms[word] || [word] } .flatten if synonyms
+    text = text.map {|word| word.include?('-') ? [word.gsub('-',' '), word.gsub('-', '')] : [word] } .flatten # create separated and contracted version of words if dashes are present
     
     text
   end
