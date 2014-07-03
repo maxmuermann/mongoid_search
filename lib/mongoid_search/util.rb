@@ -60,7 +60,7 @@ module Mongoid::Search::Util
     text = text.reject { |word| ignore_list.include?(word) } unless ignore_list.blank?
     text = text.map(&stem_proc) if stem_keywords
     text = text.map {|word| synonyms[word] || [word] } .flatten if synonyms
-    text = text.map {|word| p word;word.include?('-') ? [word.gsub('-',' '), word.gsub('-', '')] : [word] } .flatten # create separated and contracted version of words if dashes are present
+    text = text.map {|word| word.include?('-') ? [word.gsub('-',' '), word.gsub('-', '')] : [word] } .flatten # create separated and contracted version of words if dashes are present
 
     text
   end
